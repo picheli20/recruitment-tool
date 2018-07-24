@@ -8,7 +8,7 @@ export class AssessmentController {
 
   constructor(private readonly assessmentService: AssessmentService) {}
 
-  @Post('/request')
+  @Post('request')
   request() {
     return 'Requesting';
   }
