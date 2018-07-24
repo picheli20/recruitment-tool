@@ -20,21 +20,11 @@ export class CandidateController {
   }
 
   @Get(':id')
-  async find(
+  find(
     @Param('id')
-    id: number,
+    id: string,
   ): Promise<ICandidate> {
-    const projects = await this.candidateService.find({ _id: id });
-
-    if (projects.length === 0) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (projects.length > 1) {
-      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-    }
-
-    return projects[0];
+    return this.candidateService.findOne(id);
   }
 
   @Put(':id')

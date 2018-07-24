@@ -18,21 +18,11 @@ export class ProjectController {
   }
 
   @Get(':id')
-  async find(
+  find(
     @Param('id')
-    id: number,
+    id: string,
   ): Promise<IProject> {
-    const projects = await this.projectService.find({ _id: id });
-
-    if (projects.length === 0) {
-      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (projects.length > 1) {
-      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-    }
-
-    return projects[0];
+    return this.projectService.findOne(id);
   }
 
   @Put(':id')

@@ -21,6 +21,10 @@ export class CandidateService {
     return await this.candidateModel.find(data).exec();
   }
 
+  async findOne(_id: string ): Promise<ICandidate> {
+    return await this.candidateModel.findOne({ _id }).exec();
+  }
+
   async post(candidate: ICandidate) {
     const userValidation = await this.find({ email: candidate.email });
     if (userValidation.length > 0) {

@@ -36,6 +36,10 @@ export class ProjectService {
     return await this.projectModel.find(data).exec();
   }
 
+  async findOne(_id: string ): Promise<IProject> {
+    return await this.projectModel.findOne({ _id }).exec();
+  }
+
   delete(id: string): Promise<IProject> {
     return this.projectModel.findByIdAndRemove(id).exec();
   }
