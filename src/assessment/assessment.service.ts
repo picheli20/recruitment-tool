@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from 'core/logger/logger.service';
 import { ICandidate } from 'candidate/interfaces/candidate.interface';
 import { IProject } from 'project/interface/project.interface';
 
