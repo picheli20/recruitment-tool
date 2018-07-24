@@ -40,4 +40,12 @@ export class CandidateService {
 
     return this.create(candidate);
   }
+
+  delete(id: string): Promise<ICandidate> {
+    return this.candidateModel.findByIdAndRemove(id).exec();
+  }
+
+  update(id: string, newProject: ICandidate): Promise<ICandidate> {
+    return this.candidateModel.findByIdAndUpdate(id, newProject).exec();
+  }
 }
