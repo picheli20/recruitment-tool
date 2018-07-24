@@ -3,12 +3,16 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ICandidate } from './interfaces/candidate.interface';
 import { ICreateCandidateDto } from './dto/create-candidate.dto';
+import { AssessmentService } from 'assessment/assessment.service';
 
 @Injectable()
 export class CandidateService {
-  constructor(@InjectModel('Candidate') private readonly candidateModel: Model<ICandidate>) {}
+  constructor(
+    @InjectModel('Candidate') private readonly candidateModel: Model<ICandidate>,
+    private readonly assessmentService: AssessmentService,
+  ) {}
 
-  async create(createCandidateDto: ICreateCandidateDto): Promise<ICandidate> {
+  async create(createCandidateDto: ICandidate): Promise<ICandidate> {
     const createdCandidate = new this.candidateModel(createCandidateDto);
     return await createdCandidate.save();
   }
@@ -25,7 +29,7 @@ export class CandidateService {
     return await this.candidateModel.findOne({ _id }).exec();
   }
 
-  async post(candidate: ICandidate) {
+  async post({ candidate, project }: ICreateCandidateDto) {
     const userValidation = await this.find({ email: candidate.email });
     if (userValidation.length > 0) {
       throw new HttpException(
@@ -42,7 +46,8 @@ export class CandidateService {
       );
     }
 
-    return this.create(candidate);
+    const createCandidate = await this.create(candidate);
+    this.assessmentService.run(createCandidate, project);
   }
 
   delete(id: string): Promise<ICandidate> {

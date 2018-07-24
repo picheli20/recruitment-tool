@@ -1,6 +1,8 @@
 import { Controller, Get, Post, HttpCode, HttpStatus, Body, Param, Put, HttpException, Delete } from '@nestjs/common';
 import { CandidateService } from './candidate.service';
 import { ICandidate } from './interfaces/candidate.interface';
+import { ICreateCandidateDto } from './dto/create-candidate.dto';
+import { AssessmentService } from 'assessment/assessment.service';
 
 @Controller('candidate')
 export class CandidateController {
@@ -15,7 +17,7 @@ export class CandidateController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  post(@Body() data: ICandidate) {
+  post(@Body() data: ICreateCandidateDto) {
     return this.candidateService.post(data);
   }
 
