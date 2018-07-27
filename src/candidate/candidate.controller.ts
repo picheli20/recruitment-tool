@@ -40,6 +40,11 @@ export class CandidateController {
     return { success: true, data: project };
   }
 
+  @Get('run/:id')
+  async run(@Param('id') id: string) {
+    return this.candidateService.run(id);
+  }
+
   @Delete(':id')
   async delete(@Param('id') id: string) {
     const project = await this.candidateService.delete(id);

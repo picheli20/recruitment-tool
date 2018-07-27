@@ -47,7 +47,14 @@ export class CandidateService {
     }
 
     const createCandidate = await this.create(candidate);
+
     this.assessmentService.run(createCandidate, project);
+  }
+
+  async run(id: string) {
+    const candidate = await this.findOne(id);
+
+    return candidate;
   }
 
   delete(id: string): Promise<ICandidate> {
