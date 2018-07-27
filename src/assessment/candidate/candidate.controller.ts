@@ -2,7 +2,6 @@ import { Controller, Get, Post, HttpCode, HttpStatus, Body, Param, Put, HttpExce
 import { CandidateService } from './candidate.service';
 import { ICandidate } from './interfaces/candidate.interface';
 import { ICreateCandidateDto } from './dto/create-candidate.dto';
-import { AssessmentService } from 'assessment/assessment.service';
 
 @Controller('candidate')
 export class CandidateController {
@@ -38,11 +37,6 @@ export class CandidateController {
     project.projectUrl = updateProjectDto.projectUrl;
 
     return { success: true, data: project };
-  }
-
-  @Get('run/:projectId/:candidateId')
-  async run(@Param('projectId') projectId: string, @Param('candidateId') candidateId: string) {
-    return this.candidateService.run(projectId, candidateId);
   }
 
   @Delete(':id')

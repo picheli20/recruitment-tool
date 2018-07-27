@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { ICandidate } from 'candidate/interfaces/candidate.interface';
-import { IProject } from 'project/interface/project.interface';
+import { CandidateService } from './candidate/candidate.service';
+import { ProjectService } from './project/project.service';
 
 @Injectable()
 export class AssessmentService {
 
-  async run(project: IProject, candidate: ICandidate) {
+  constructor(
+    private readonly candidateService: CandidateService,
+    private readonly projectService: ProjectService,
+  ) {}
+
+  async run(idProject: string, idCandidate: string) {
+    const project = await this.projectService.findOne(idProject);
+    const candidate = await this.candidateService.findOne(idCandidate);
     /*
       * TODO: Add code for:
       *  1: Clone the project repo

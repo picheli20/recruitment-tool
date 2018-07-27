@@ -3,15 +3,13 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ICandidate } from './interfaces/candidate.interface';
 import { ICreateCandidateDto } from './dto/create-candidate.dto';
-import { AssessmentService } from 'assessment/assessment.service';
-import { ProjectService } from 'project/project.service';
+import { ProjectService } from '../project/project.service';
 
 @Injectable()
 export class CandidateService {
   constructor(
     @InjectModel('Candidate') private readonly candidateModel: Model<ICandidate>,
     private readonly projectService: ProjectService,
-    private readonly assessmentService: AssessmentService,
   ) {}
 
   async create(createCandidateDto: ICandidate): Promise<ICandidate> {
@@ -50,14 +48,7 @@ export class CandidateService {
 
     const createCandidate = await this.create(candidate);
 
-    return await this.assessmentService.run(project, candidate);
-  }
-
-  async run(projectId: string, candidateId: string) {
-    const candidate = await this.findOne(candidateId);
-    const project = await this.projectService.findOne(projectId);
-
-    return await this.assessmentService.run(project, candidate);
+    return { project, candidate: createCandidate};
   }
 
   delete(id: string): Promise<ICandidate> {
