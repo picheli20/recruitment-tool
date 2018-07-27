@@ -5,7 +5,7 @@ import { IProject } from 'project/interface/project.interface';
 @Injectable()
 export class AssessmentService {
 
-  async run(candidate: ICandidate, project: IProject) {
+  async run(project: IProject, candidate: ICandidate) {
     /*
       * TODO: Add code for:
       *  1: Clone the project repo
@@ -14,6 +14,6 @@ export class AssessmentService {
       *  4: Run test
       *  5: if (Success) send email with link; else: send email with retry link
     */
-    return { candidate, project };
+    return { project, candidate };
   }
 }

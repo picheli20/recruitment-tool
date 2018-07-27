@@ -40,9 +40,9 @@ export class CandidateController {
     return { success: true, data: project };
   }
 
-  @Get('run/:id')
-  async run(@Param('id') id: string) {
-    return this.candidateService.run(id);
+  @Get('run/:projectId/:candidateId')
+  async run(@Param('projectId') projectId: string, @Param('candidateId') candidateId: string) {
+    return this.candidateService.run(projectId, candidateId);
   }
 
   @Delete(':id')
