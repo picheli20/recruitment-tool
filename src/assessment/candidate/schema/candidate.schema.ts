@@ -4,4 +4,5 @@ export const CandidateSchema = new mongoose.Schema({
   name: String,
   email: String,
   projectUrl: String,
+  projectCode: String,
 });

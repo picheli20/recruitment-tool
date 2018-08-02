@@ -46,6 +46,8 @@ export class CandidateService {
       );
     }
 
+    candidate.projectCode = project.shortcode;
+
     const createCandidate = await this.create(candidate);
 
     return { project, candidate: createCandidate};

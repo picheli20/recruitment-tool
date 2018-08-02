@@ -30,7 +30,7 @@ export class ProjectController {
     const project = await this.projectService.update(id, updateProjectDto);
 
     project.repo = updateProjectDto.repo;
-    project.name = updateProjectDto.name;
+    project.shortcode = updateProjectDto.shortcode;
 
     return { success: true, data: project };
   }

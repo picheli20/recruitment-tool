@@ -1,13 +1,17 @@
 import { resolve } from 'path';
-
+import { readFileSync } from 'fs';
 import { Injectable } from '@nestjs/common';
+
 import { CandidateService } from './candidate/candidate.service';
 import { ProjectService } from './project/project.service';
 import { TerminalService } from 'terminal/terminal.service';
 import { IProject } from './project/interface/project.interface';
 import { ICandidate } from './candidate/interfaces/candidate.interface';
+import { IProjectConfig } from './interfaces/project-config.interface';
 
 const BASE_PATH = resolve(__dirname, '../../repos');
+const MAIN_FOLDER = 'main';
+const CANDIDATE_FOLDER = 'main';
 
 @Injectable()
 export class AssessmentService {
@@ -22,53 +26,72 @@ export class AssessmentService {
     }
   }
 
-  async run(idProject: string, idCandidate: string) {
-    const project = await this.projectService.findOne(idProject);
+  async run(idCandidate: string) {
     const candidate = await this.candidateService.findOne(idCandidate);
+    const project = await this.projectService.findOne(candidate.projectCode);
 
-    const { candidatePath } = this.createFolders(project, candidate);
-    const gitCandidatePath = resolve(candidatePath, './repo');
+    const { candidatePath, projectPath } = this.createFolders(project, candidate);
+    const gitCandidatePath = resolve(candidatePath, `./${CANDIDATE_FOLDER}`);
+    const gitProjectPath = resolve(projectPath, `./${MAIN_FOLDER}`);
 
-    this.terminal.rmdir(resolve(candidatePath, './repo'));
+    this.terminal.rmdir(gitCandidatePath);
 
-    this.terminal.run('git', ['clone', candidate.projectUrl, gitCandidatePath]);
+    await this.terminal.run('git', ['clone', candidate.projectUrl, gitCandidatePath]);
 
-    // this.terminal.run('git', ['clone', candidate.projectUrl, folder]).then(console.log);
+    const projectConfig: IProjectConfig = JSON.parse(readFileSync(resolve(gitProjectPath, './config.json'), 'utf8'));
+
+    // TOOD: Replace code from project repo with candidate repo according the project-config.json
+
+    const outInstall = await this.runConfigCommand(projectConfig.run.install, gitCandidatePath);
+    const outTest = await this.runConfigCommand(projectConfig.run.test, gitCandidatePath);
+
     /*
-      * TODO: Add code for:
-      *  3: Replace code from project repo with candidate repo according the project-config.json
-      *  4: Run test
-      *  5: if (Success) send email with link; else: send email with retry link
+      * TODO: if (Success) send email with link; else: send email with retry link
     */
-    return { project, candidate };
+
+    return { project, candidate, outTest, outInstall };
   }
 
-  // TODO: Create a service
-  async runProject(idProject: string, idCandidate: string) {
+  async runProject(idProject: string) {
     const project = await this.projectService.findOne(idProject);
-    const candidate = await this.candidateService.findOne(idCandidate);
 
-    const { projectPath } = this.createFolders(project, candidate);
-    const gitProjectPath = resolve(projectPath, './repo');
+    const { projectPath } = this.createFolders(project);
+    const gitProjectPath = resolve(projectPath, `./${MAIN_FOLDER}`);
 
-    this.terminal.rmdir(resolve(projectPath, './repo'));
+    this.terminal.rmdir(gitProjectPath);
 
-    this.terminal.run('git', ['clone', project.repo, gitProjectPath]);
+    await this.terminal.run('git', ['clone', project.repo, gitProjectPath]);
+
     return { project };
 
   }
 
-  createFolders(project: IProject, candidate: ICandidate) {
-    const projectPath = resolve(BASE_PATH, `${project.name}`);
+  createFolders(project: IProject, candidate?: ICandidate) {
+    const projectPath = resolve(BASE_PATH, `${project.shortcode}`);
     if (!this.terminal.exists(projectPath)) {
       this.terminal.mkdir(projectPath);
     }
 
-    const candidatePath = resolve(BASE_PATH, `${project.name}`, `${candidate._id}`);
+    if (!candidate) {
+      return { projectPath };
+    }
+
+    const candidatePath = resolve(BASE_PATH, `${project.shortcode}`, `${candidate._id}`);
     if (!this.terminal.exists(candidatePath)) {
       this.terminal.mkdir(candidatePath);
     }
 
     return { candidatePath, projectPath };
+  }
+
+  private async runConfigCommand(commandArr: string[], cwd: string) {
+    const out = [];
+    for (const item of commandArr) {
+      const args = item.split(' ');
+      const command = args.shift();
+      out.push(await this.terminal.run(command, args, { cwd }));
+    }
+
+    return out;
   }
 }

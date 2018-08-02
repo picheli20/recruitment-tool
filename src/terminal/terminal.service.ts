@@ -1,11 +1,11 @@
-import { spawn } from 'child_process';
+import { spawn, SpawnOptions } from 'child_process';
 import { existsSync, rmdirSync, mkdirSync, readdirSync, lstatSync, unlinkSync } from 'fs';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class TerminalService {
-  run(command: string, args: string[]) {
-    const process = spawn(command, args);
+  run(command: string, args: string[], options?: SpawnOptions) {
+    const process = spawn(command, args, options);
     return new Promise((resolve, reject) => {
       let out = '';
 

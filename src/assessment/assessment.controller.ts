@@ -6,8 +6,13 @@ export class AssessmentController {
 
   constructor(private readonly assessmentService: AssessmentService) {}
 
-  @Get('run/:idProject/:idCandidate')
-  async run(@Param('idProject') idProject: string, @Param('idCandidate') idCandidate: string) {
-    return await this.assessmentService.run(idProject, idCandidate);
+  @Get('run/candidate/:idCandidate')
+  async run(@Param('idCandidate') idCandidate: string) {
+    return await this.assessmentService.run(idCandidate);
+  }
+
+  @Get('run/:idProject')
+  async runProject(@Param('idProject') idProject: string) {
+    return await this.assessmentService.runProject(idProject);
   }
 }
