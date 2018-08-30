@@ -34,6 +34,10 @@ export class AssessmentService {
     const gitCandidatePath = resolve(candidatePath, `./${CANDIDATE_FOLDER}`);
     const gitProjectPath = resolve(projectPath, `./${MAIN_FOLDER}`);
 
+    if (!this.terminal.exists(gitProjectPath)) {
+      await this.runProject(candidate.projectCode);
+    }
+
     this.terminal.rmdir(gitCandidatePath);
 
     await this.terminal.run('git', ['clone', candidate.projectUrl, gitCandidatePath]);
@@ -41,15 +45,21 @@ export class AssessmentService {
     const projectConfig: IProjectConfig = JSON.parse(readFileSync(resolve(gitProjectPath, './config.json'), 'utf8'));
 
     // TOOD: Replace code from project repo with candidate repo according the project-config.json
+    const runKeys = Object.keys(projectConfig.run);
+    let score = 0;
+    let log = '';
 
-    const outInstall = await this.runConfigCommand(projectConfig.run.install, gitCandidatePath);
-    const outTest = await this.runConfigCommand(projectConfig.run.test, gitCandidatePath);
+    for (let i = 0; runKeys.length > i; i++) {
+      const result = await this.runConfigCommand(projectConfig.run[runKeys[i]], gitCandidatePath);
+      score += result.reduce((acc, obj) => acc + obj.code, 0);
+      log += result.reduce((acc, obj) => acc + obj.out, 0);
+    }
 
     /*
       * TODO: if (Success) send email with link; else: send email with retry link
     */
 
-    return { project, candidate, outTest, outInstall };
+    return { project, candidate, log, score };
   }
 
   async runProject(idProject: string) {
@@ -89,6 +99,7 @@ export class AssessmentService {
     for (const item of commandArr) {
       const args = item.split(' ');
       const command = args.shift();
+      console.log('running: ', command, args);
       out.push(await this.terminal.run(command, args, { cwd }));
     }
 
